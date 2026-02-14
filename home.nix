@@ -56,7 +56,40 @@ in
     pkgs.iterm2 # Cuma ada di Mac
   ] else []);
 
-  # --- 3. Konfigurasi ZSH ---
+  # --- 3. Konfigurasi Git & SSH ---
+  programs.git = {
+    enable = true;
+    userName = "M Danil Rafiqi"; # Ganti dengan nama kamu
+    userEmail = "danil.rafiqi@gmail.com"; # Ganti dengan email kamu
+    aliases = {
+      s = "status";
+      co = "checkout";
+      br = "branch";
+      cm = "commit";
+      lg = "log --graph --oneline --all";
+    };
+    extraConfig = {
+      init.defaultBranch = "main";
+      pull.rebase = true;
+    };
+  };
+
+  programs.ssh = {
+    enable = true;
+    addKeysToAgent = "yes";
+    matchBlocks = {
+      "github.com" = {
+        hostname = "github.com";
+        user = "git";
+      };
+      "gitlab.com" = {
+        hostname = "gitlab.com";
+        user = "git";
+      };
+    };
+  };
+
+  # --- 4. Konfigurasi ZSH ---
   programs.zsh = {
     enable = true;
     enableCompletion = true;

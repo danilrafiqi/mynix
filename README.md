@@ -1,61 +1,96 @@
-# Multi-Platform Home Manager Configuration
+# 🚀 Home Manager Multi-Platform Setup Guide
 
-Repositori ini berisi konfigurasi Home Manager yang didesain agar bisa digunakan di berbagai sistem operasi (macOS, Native Linux, dan Windows WSL) dengan konfigurasi yang konsisten.
+Panduan ini ditujukan untuk setup laptop baru (Mac, Linux, atau Windows WSL) dari nol agar environment development kamu langsung siap pakai dan identik di semua perangkat.
 
-## Struktur Utama
-- `flake.nix`: Mengelola output untuk berbagai sistem dan arsitektur.
-- `home.nix`: Berisi logika instalasi paket dan konfigurasi shell (ZSH) yang otomatis mendeteksi platform.
+---
 
-## Cara Penggunaan
+## 🛠 Tahap 0: Persiapan (Prerequisites)
 
-Gunakan flag yang sesuai dengan perangkat kamu saat menjalankan `home-manager switch`. 
+Sebelum mulai, pastikan **Nix** sudah terinstall di laptop baru kamu.
 
-> [!TIP]
-> Jika muncul error **"Existing file ... would be clobbered"**, tambahkan flag `-b backup` untuk membackup file lama secara otomatis.
+### Install Nix (Multi-user)
+Jalankan perintah ini di terminal:
+```bash
+sh <(curl -L https://nixos.org/nix/install) --daemon
+```
+*Setelah selesai, tutup dan buka kembali terminal kamu.*
 
-### 1. Apple Silicon Mac
+---
+
+## 🔑 Tahap 1: Migrasi SSH Key (SANGAT PENTING)
+
+Agar kamu bisa langsung `push/pull` ke GitHub/GitLab tanpa login ulang, kamu harus memindahkan kunci SSH dari laptop lama ke laptop baru.
+
+1.  **Di Laptop Lama**: Copy folder `~/.ssh` (isi file `id_ed25519` dan `id_ed25519.pub`) ke flashdisk atau cloud yang aman.
+2.  **Di Laptop Baru**:
+    -   Buat folder ssh: `mkdir -p ~/.ssh`
+    -   Paste file kunci kamu ke dalam folder tersebut.
+    -   Atur permission (Wajib):
+        ```bash
+        chmod 700 ~/.ssh
+        chmod 600 ~/.ssh/id_ed25519
+        chmod 644 ~/.ssh/id_ed25519.pub
+        ```
+
+---
+
+## 📂 Tahap 2: Copy Konfigurasi
+
+Copy folder `home-manager` ini dari laptop lama ke lokasi yang sama di laptop baru:
+`~/.config/home-manager/`
+
+---
+
+## 🚀 Tahap 3: Aktivasi Home Manager
+
+Sekarang, kita akan memasang Home Manager dan mengaktifkan konfigurasi kamu.
+
+### 1. Inisialisasi Home Manager (Pertama Kali)
+```bash
+nix run home-manager/master -- init --flake ~/.config/home-manager
+```
+
+### 2. Pilih Output Sesuai Laptop Kamu
+Jalankan perintah yang sesuai di bawah ini:
+
+#### A. Jika ini MacBook (Apple Silicon)
 ```bash
 home-manager switch --flake .#mdanilrafiqi -b backup
 ```
-- **Paket**: Terminal Tools + GUI Apps (Chrome, VSCode, ITerm2, dll).
-- **Home Dir**: `/Users/mdanilrafiqi`
 
-### 2. Native Linux (Laptop Laptop/PC)
+#### B. Jika ini Laptop Linux (Native)
 ```bash
 home-manager switch --flake .#mdanilrafiqi-linux -b backup
 ```
-- **Paket**: Terminal Tools + GUI Apps (Chrome, VSCode, dll).
-- **Home Dir**: `/home/mdanilrafiqi`
 
-### 3. Windows (WSL2)
+#### C. Jika ini Windows (WSL2)
 ```bash
 home-manager switch --flake .#mdanilrafiqi-wsl -b backup
 ```
-- **Paket**: Cuma Terminal Tools (Ringan).
-- **Hardware**: Disarankan pakai versi Windows native untuk Zoom/Postman agar Webcam/Mic stabil.
-- **Home Dir**: `/home/mdanilrafiqi`
 
 ---
 
-## Tips & Troubleshooting
+## 💡 Apa yang Otomatis Terpasang?
 
-### Error: "Existing file ... would be clobbered"
-Nix tidak akan menimpa file konfigurasi yang sudah ada (seperti `.zshrc` bawaan Mac) secara paksa. Gunakan flag `-b backup` untuk memberitahu Home Manager agar memindahkan file asli ke nama baru (misal: `.zshrc.backup`) sebelum memasang versinya sendiri.
-
-### Error: "command not found: nix"
-Jika perintah `nix` tidak dikenali setelah update macOS, jalankan:
-```bash
-source ~/.zshrc
-```
-Ini karena konfigurasi Nix di dalam `.zshrc` perlu dimuat ulang.
+| Fitur | Deskripsi |
+| :--- | :--- |
+| **Git Identity** | Nama `M Danil Rafiqi` & Email sudah otomatis tersetup. |
+| **SSH Config** | Otomatis mengenali GitHub/GitLab menggunakan key kamu. |
+| **Shell (ZSH)** | Oh-My-Zsh, Theme, Plugins (git, docker, npm) terinstall. |
+| **CLI Tools** | `eza` (ls icon), `bat` (cat berwarna), `htop`, `ripgrep`, dll. |
+| **Alias** | `hm` (untuk update config), `ll`, `ls`, `cat` semua sudah di-map. |
+| **GUI Apps** | Versi Mac/Linux akan menginstall Chrome, Zoom, VSCode secara otomatis. |
 
 ---
 
-## Logika Deteksi Otomatis
-Konfigurasi (`home.nix`) menggunakan variabel `isWSL` dan pengecekan arsitektur untuk:
-1. Menentukan lokasi `homeDirectory`.
-2. Memilih apakah aplikasi GUI perlu diinstall lewat Nix atau tidak.
-3. Mengaktifkan plugin ZSH spesifik platform (misal: plugin `macos`).
+## 🔍 Troubleshooting
+
+- **"command not found: nix"**: Jalankan `source ~/.zshrc` atau buka terminal baru.
+- **"clobbered error"**: Pastikan kamu selalu menyertakan flag `-b backup` saat menjalankan `home-manager switch`.
+- **Ganti Nama/Email Git**: Ubah di file [home.nix](file:///Users/mdanilrafiqi/.config/home-manager/home.nix) di bagian `programs.git`.
+
+---
+*Happy Coding!* 🚀
 
 ## Backup
 Jika terjadi kesalahan, konfigurasi lama tersimpan di `~/backupnix`.
