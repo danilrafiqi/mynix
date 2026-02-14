@@ -39,6 +39,8 @@ in
     pkgs.jq
     pkgs.lazygit
     pkgs.tldr
+    pkgs.zip
+    pkgs.unzip
 
     # --- Script Backup SSH (Encrypted) ---
     (pkgs.writeShellScriptBin "backup-ssh" (builtins.readFile ./scripts/backup-ssh.sh))
