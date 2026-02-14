@@ -61,28 +61,32 @@ Agar kamu bisa akses repo private lain tanpa password, kita restore kunci SSH ka
 
 Sekarang environment kamu siap diaktifkan!
 
-### 1. Inisialisasi (Pertama Kali Saja)
-```bash
-nix run home-manager/master -- init --flake ~/.config/home-manager
-```
-
-### 2. Install & Switch
-Pilih perintah sesuai laptop kamu:
+### 1. Inisialisasi & Apply (Sekubus)
+Karena kamu sudah clone repo ini, kamu TIDAK PERLU menjalankan `home-manager init`. Langsung jalankan perintah ini untuk mengapply konfigurasi pertama kali:
 
 #### 🍎 MacBook (Apple Silicon)
 ```bash
-home-manager switch --flake .#mdanilrafiqi -b backup
+nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi
 ```
 
 #### 🐧 Linux Native (Ubuntu/Fedora)
 ```bash
-home-manager switch --flake .#mdanilrafiqi-linux -b backup
+nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi-linux
 ```
 
 #### 🪟 Windows (WSL2)
 ```bash
-home-manager switch --flake .#mdanilrafiqi-wsl -b backup
+nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi-wsl
 ```
+
+### 2. Install & Switch
+### 2. Update Config Berikutnya
+Setelah command di atas sukses dan home-manager sudah terinstall di path, untuk update selanjutnya cukup gunakan command yang lebih pendek:
+
+```bash
+home-manager switch --flake ~/.config/home-manager
+```
+*(Otomatis mendeteksi hostname yang sesuai)*
 
 ---
 
