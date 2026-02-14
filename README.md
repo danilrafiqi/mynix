@@ -37,8 +37,6 @@ Copy folder `home-manager` dari laptop lama ke `~/.config/home-manager/` di lapt
 
 ---
 
----
-
 ## 🚀 Tahap 2: Aktivasi Home Manager
 
 Sekarang environment kamu siap diaktifkan!
@@ -61,7 +59,6 @@ nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiq
 nix run home-manager/master -- switch --flake ~/.config/home-manager#norastudio -b backup
 ```
 
-### 2. Install & Switch
 ### 2. Update Config Berikutnya
 Setelah command di atas sukses dan home-manager sudah terinstall di path, untuk update selanjutnya cukup gunakan command yang lebih pendek:
 
@@ -104,6 +101,33 @@ Karena `home-manager` sudah terinstall, script `restore-ssh` sudah tersedia di t
 | **Backup SSH** | Ketik `backup-ssh` untuk mengenkripsi kunci SSH kapan saja. |
 | **Restore SSH** | Ketik `restore-ssh` di laptop lain untuk mengembalikan kunci. |
 | **Apps** | Chrome, VSCode, Zoom otomatis terinstall (kecuali di WSL). |
+
+---
+
+## 🛡 Backup & Maintenance
+
+Agar konfigurasi dan kunci SSH aman, lakukan backup secara berkala.
+
+### 1. Backup SSH Key
+Jalankan perintah ini untuk mengenkripsi folder `~/.ssh` kamu:
+```bash
+backup-ssh
+```
+File hasil backup ada di `~/backupssh/ssh_backup.enc`.
+**PENTING**: Simpan file ini di tempat aman (Flashdisk, Google Drive, atau Private Repo Git). File ini dibutuhkan saat setup di laptop baru.
+
+### 2. Backup Konfigurasi (Git)
+Setiap kali kamu mengubah `home.nix` atau config lain, jangan lupa commit & push:
+```bash
+cd ~/.config/home-manager
+git add .
+git commit -m "Update config: deskripsi perubahan"
+git push
+```
+
+### 3. Restore di Laptop Baru
+- **Restore Config**: Ikuti **Tahap 1** (Clone Repo).
+- **Restore SSH**: Ikuti **Tahap 3** (Restore SSH Key) menggunakan file `ssh_backup.enc` yang sudah kamu simpan.
 
 ---
 
