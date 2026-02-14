@@ -37,27 +37,9 @@ Copy folder `home-manager` dari laptop lama ke `~/.config/home-manager/` di lapt
 
 ---
 
-## 🔑 Tahap 2: Restore SSH Key (PENTING)
-
-Agar kamu bisa akses repo private lain tanpa password, kita restore kunci SSH kamu.
-
-1.  **Siapkan File Backup**: Ambil file `ssh_backup.enc` yang sudah kamu buat di laptop lama (dari repo private `myssh` atau flashdisk).
-2.  **Taruh File**: Letakkan file tersebut di folder `~/backupssh/ssh_backup.enc`.
-    ```bash
-    mkdir -p ~/backupssh
-    # Copy file ssh_backup.enc ke dalam folder ini
-    ```
-3.  **Jalankan Script Restore Sementara**:
-    Karena Home Manager belum terinstall, kamu perlu menjalankan script restore secara manual dari folder config yang baru didownload:
-    ```bash
-    chmod +x ~/.config/home-manager/scripts/restore-ssh.sh
-    ~/.config/home-manager/scripts/restore-ssh.sh
-    ```
-    *Masukkan password enkripsi saat diminta.*
-
 ---
 
-## 🚀 Tahap 3: Aktivasi Home Manager
+## 🚀 Tahap 2: Aktivasi Home Manager
 
 Sekarang environment kamu siap diaktifkan!
 
@@ -66,17 +48,17 @@ Karena kamu sudah clone repo ini, kamu TIDAK PERLU menjalankan `home-manager ini
 
 #### 🍎 MacBook (Apple Silicon)
 ```bash
-nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi
+nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi -b backup
 ```
 
 #### 🐧 Linux Native (Ubuntu/Fedora)
 ```bash
-nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi-linux
+nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi-linux -b backup
 ```
 
 #### 🪟 Windows (WSL2)
 ```bash
-nix run home-manager/master -- switch --flake ~/.config/home-manager#mdanilrafiqi-wsl
+nix run home-manager/master -- switch --flake ~/.config/home-manager#norastudio -b backup
 ```
 
 ### 2. Install & Switch
@@ -87,6 +69,24 @@ Setelah command di atas sukses dan home-manager sudah terinstall di path, untuk 
 home-manager switch --flake ~/.config/home-manager
 ```
 *(Otomatis mendeteksi hostname yang sesuai)*
+
+---
+
+## 🔑 Tahap 3: Restore SSH Key
+
+Agar kamu bisa akses repo private lain tanpa password, kita restore kunci SSH kamu.
+Karena `home-manager` sudah terinstall, script `restore-ssh` sudah tersedia di terminal kamu.
+
+1.  **Siapkan File Backup**: Pastikan file `ssh_backup.enc` ada di folder `~/backupssh/`.
+    ```bash
+    mkdir -p ~/backupssh
+    # Copy file ssh_backup.enc ke folder ini
+    ```
+2.  **Jalankan Restore**:
+    ```bash
+    restore-ssh
+    ```
+    *Masukkan password enkripsi saat diminta.*
 
 ---
 

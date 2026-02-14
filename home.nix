@@ -1,9 +1,9 @@
-{ config, pkgs, lib, isWSL, ... }:
+{ config, pkgs, lib, isWSL, username, ... }:
 
 let
   isDarwin = pkgs.stdenv.isDarwin;
   isLinux = pkgs.stdenv.isLinux;
-  username = "mdanilrafiqi";
+  # username is now passed via arguments
   
   # Logika: Install GUI apps jika di Mac ATAU (Linux murni dan BUKAN WSL)
   shouldInstallGUI = isDarwin || (isLinux && !isWSL);
@@ -62,19 +62,21 @@ in
     pkgs.iterm2 # Cuma ada di Mac
   ] else []);
 
-  # --- 3. Konfigurasi Git & SSH ---
   programs.git = {
     enable = true;
-    userName = "M Danil Rafiqi"; # Ganti dengan nama kamu
-    userEmail = "danil.rafiqi@gmail.com"; # Ganti dengan email kamu
-    aliases = {
-      s = "status";
-      co = "checkout";
-      br = "branch";
-      cm = "commit";
-      lg = "log --graph --oneline --all";
-    };
-    extraConfig = {
+    # settings replaces userName, userEmail, aliases, and extraConfig
+    settings = {
+      user = {
+        name = "M Danil Rafiqi";
+        email = "danil.rafiqi@gmail.com";
+      };
+      alias = {
+        s = "status";
+        co = "checkout";
+        br = "branch";
+        cm = "commit";
+        lg = "log --graph --oneline --all";
+      };
       init.defaultBranch = "main";
       pull.rebase = true;
     };
@@ -82,8 +84,12 @@ in
 
   programs.ssh = {
     enable = true;
-    addKeysToAgent = "yes";
+    # Disable deprecated default config merging
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        addKeysToAgent = "yes";
+      };
       "github.com" = {
         hostname = "github.com";
         user = "git";
@@ -109,7 +115,7 @@ in
       theme = "robbyrussell"; 
     };
 
-    initExtra = ''
+    initContent = ''
       # Nix initialization
       if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
