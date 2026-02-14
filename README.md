@@ -17,20 +17,28 @@ sh <(curl -L https://nixos.org/nix/install) --daemon
 
 ---
 
-## 🔑 Tahap 1: Migrasi SSH Key (SANGAT PENTING)
+## 🔑 Tahap 1: Migrasi SSH Key (Otomatis & Aman)
 
-Agar kamu bisa langsung `push/pull` ke GitHub/GitLab tanpa login ulang, kamu harus memindahkan kunci SSH dari laptop lama ke laptop baru.
+Kami sudah menyediakan script otomatis untuk memindahkan kunci SSH dengan aman (terenkripsi password).
 
-1.  **Di Laptop Lama**: Copy folder `~/.ssh` (isi file `id_ed25519` dan `id_ed25519.pub`) ke flashdisk atau cloud yang aman.
-2.  **Di Laptop Baru**:
-    -   Buat folder ssh: `mkdir -p ~/.ssh`
-    -   Paste file kunci kamu ke dalam folder tersebut.
-    -   Atur permission (Wajib):
-        ```bash
-        chmod 700 ~/.ssh
-        chmod 600 ~/.ssh/id_ed25519
-        chmod 644 ~/.ssh/id_ed25519.pub
-        ```
+### A. Di Laptop Lama (Backup)
+1.  Jalankan perintah ini untuk membuat file backup terenkripsi (OpenSSL):
+    ```bash
+    # Pastikan sudah switch home-manager dulu
+    nix run .#homeConfigurations.mdanilrafiqi.activationPackage
+    
+    # Jalankan script backup (Password akan diminta via terminal)
+    backup-ssh
+    ```
+2.  File `~/backupssh/ssh_backup.enc` akan muncul. Upload file ini ke repo private kamu (misal: `https://github.com/danilrafiqi/myssh.git`) atau simpan di flashdisk.
+
+### B. Di Laptop Baru (Restore)
+1.  Buat folder `~/backupssh` dan download file `ssh_backup.enc` ke dalamnya.
+2.  Setelah install Nix & Home Manager, jalankan:
+    ```bash
+    restore-ssh
+    ```
+3.  Selesai! Script akan meminta password untuk mendekripsi dan menaruh kunci di `~/.ssh` dengan permission yang benar.
 
 ---
 

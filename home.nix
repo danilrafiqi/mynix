@@ -39,6 +39,13 @@ in
     pkgs.jq
     pkgs.lazygit
     pkgs.tldr
+    pkgs.gnupg # Enkripsi untuk backup SSH
+
+    # --- Script Backup SSH (Encrypted) ---
+    (pkgs.writeShellScriptBin "backup-ssh" (builtins.readFile ./scripts/backup-ssh.sh))
+
+    # --- Script Restore SSH (Decrypted) ---
+    (pkgs.writeShellScriptBin "restore-ssh" (builtins.readFile ./scripts/restore-ssh.sh))
   ] 
   ++ (if shouldInstallGUI then [
     # B. GUI Apps (Mac & Native Linux)
