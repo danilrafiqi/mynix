@@ -1,104 +1,110 @@
 # 🚀 Home Manager Multi-Platform Setup Guide
 
-Panduan ini ditujukan untuk setup laptop baru (Mac, Linux, atau Windows WSL) dari nol agar environment development kamu langsung siap pakai dan identik di semua perangkat.
+Panduan ini adalah **"Kitab Lengkap"** untuk setup laptop baru (Mac, Linux, atau Windows WSL) dari nol agar environment development kamu langsung siap pakai dan identik di semua perangkat.
 
 ---
 
-## 🛠 Tahap 0: Persiapan (Prerequisites)
+## 🛠 Tahap 0: Install Nix & Enable Flakes
 
-Sebelum mulai, pastikan **Nix** sudah terinstall di laptop baru kamu.
-
-### Install Nix (Multi-user)
-Jalankan perintah ini di terminal:
+### 1. Install Nix (Multi-user)
+Jalankan perintah ini di terminal (Mac/Linux/WSL):
 ```bash
 sh <(curl -L https://nixos.org/nix/install) --daemon
 ```
-*Setelah selesai, tutup dan buka kembali terminal kamu.*
+*Tutup dan buka kembali terminal setelah selesai.*
+
+### 2. Enable Flakes (Wajib)
+Agar konfigurasi ini bisa jalan, kamu harus mengaktifkan fitur "Flakes":
+```bash
+mkdir -p ~/.config/nix
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+```
 
 ---
 
-## 🔑 Tahap 1: Migrasi SSH Key (Otomatis & Aman)
+## 📂 Tahap 1: Download Konfigurasi Ini
 
-Kami sudah menyediakan script otomatis untuk memindahkan kunci SSH dengan aman (terenkripsi password).
+Karena di laptop baru kamu belum punya SSH Key, kita gunakan HTTPS dulu atau copy manual.
 
-### A. Di Laptop Lama (Backup)
-1.  Jalankan perintah ini untuk membuat file backup terenkripsi (OpenSSL):
-    ```bash
-    # Pastikan sudah switch home-manager dulu
-    nix run .#homeConfigurations.mdanilrafiqi.activationPackage
-    
-    # Jalankan script backup (Password akan diminta via terminal)
-    backup-ssh
-    ```
-2.  File `~/backupssh/ssh_backup.enc` akan muncul. Upload file ini ke repo private kamu (misal: `https://github.com/danilrafiqi/myssh.git`) atau simpan di flashdisk.
+### Opsi A: Git Clone via HTTPS
+Kamu perlu login dengan GitHub username & password (atau Personal Access Token).
+```bash
+git clone https://github.com/danilrafiqi/mynix.git ~/.config/home-manager
+```
 
-### B. Di Laptop Baru (Restore)
-1.  Buat folder `~/backupssh` dan download file `ssh_backup.enc` ke dalamnya.
-2.  Setelah install Nix & Home Manager, jalankan:
-    ```bash
-    restore-ssh
-    ```
-3.  Selesai! Script akan meminta password untuk mendekripsi dan menaruh kunci di `~/.ssh` dengan permission yang benar.
+### Opsi B: Copy Manual (Flashdisk)
+Copy folder `home-manager` dari laptop lama ke `~/.config/home-manager/` di laptop baru.
 
 ---
 
-## 📂 Tahap 2: Copy Konfigurasi
+## 🔑 Tahap 2: Restore SSH Key (PENTING)
 
-Copy folder `home-manager` ini dari laptop lama ke lokasi yang sama di laptop baru:
-`~/.config/home-manager/`
+Agar kamu bisa akses repo private lain tanpa password, kita restore kunci SSH kamu.
+
+1.  **Siapkan File Backup**: Ambil file `ssh_backup.enc` yang sudah kamu buat di laptop lama (dari repo private `myssh` atau flashdisk).
+2.  **Taruh File**: Letakkan file tersebut di folder `~/backupssh/ssh_backup.enc`.
+    ```bash
+    mkdir -p ~/backupssh
+    # Copy file ssh_backup.enc ke dalam folder ini
+    ```
+3.  **Jalankan Script Restore Sementara**:
+    Karena Home Manager belum terinstall, kamu perlu menjalankan script restore secara manual dari folder config yang baru didownload:
+    ```bash
+    chmod +x ~/.config/home-manager/scripts/restore-ssh.sh
+    ~/.config/home-manager/scripts/restore-ssh.sh
+    ```
+    *Masukkan password enkripsi saat diminta.*
 
 ---
 
 ## 🚀 Tahap 3: Aktivasi Home Manager
 
-Sekarang, kita akan memasang Home Manager dan mengaktifkan konfigurasi kamu.
+Sekarang environment kamu siap diaktifkan!
 
-### 1. Inisialisasi Home Manager (Pertama Kali)
+### 1. Inisialisasi (Pertama Kali Saja)
 ```bash
 nix run home-manager/master -- init --flake ~/.config/home-manager
 ```
 
-### 2. Pilih Output Sesuai Laptop Kamu
-Jalankan perintah yang sesuai di bawah ini:
+### 2. Install & Switch
+Pilih perintah sesuai laptop kamu:
 
-#### A. Jika ini MacBook (Apple Silicon)
+#### 🍎 MacBook (Apple Silicon)
 ```bash
 home-manager switch --flake .#mdanilrafiqi -b backup
 ```
 
-#### B. Jika ini Laptop Linux (Native)
+#### 🐧 Linux Native (Ubuntu/Fedora)
 ```bash
 home-manager switch --flake .#mdanilrafiqi-linux -b backup
 ```
 
-#### C. Jika ini Windows (WSL2)
+#### 🪟 Windows (WSL2)
 ```bash
 home-manager switch --flake .#mdanilrafiqi-wsl -b backup
 ```
 
 ---
 
-## 💡 Apa yang Otomatis Terpasang?
+## ✅ Selesai! Apa yang harus dicek?
 
+1.  **Shell**: Jika terminal kamu belum berubah jadi ZSH (tema RobbyRussell), coba restart terminal atau jalankan `zsh`.
+2.  **Git**: Coba `git status` di folder manapun, harusnya sudah pakai nama & email kamu.
+3.  **SSH**: Coba `ssh -T git@github.com`, harusnya sukses ("Hi mdanilrafiqi!").
+
+---
+
+## 💡 Fitur Otomatis
 | Fitur | Deskripsi |
 | :--- | :--- |
-| **Git Identity** | Nama `M Danil Rafiqi` & Email sudah otomatis tersetup. |
-| **SSH Config** | Otomatis mengenali GitHub/GitLab menggunakan key kamu. |
-| **Shell (ZSH)** | Oh-My-Zsh, Theme, Plugins (git, docker, npm) terinstall. |
-| **CLI Tools** | `eza` (ls icon), `bat` (cat berwarna), `htop`, `ripgrep`, dll. |
-| **Alias** | `hm` (untuk update config), `ll`, `ls`, `cat` semua sudah di-map. |
-| **GUI Apps** | Versi Mac/Linux akan menginstall Chrome, Zoom, VSCode secara otomatis. |
+| **Backup SSH** | Ketik `backup-ssh` untuk mengenkripsi kunci SSH kapan saja. |
+| **Restore SSH** | Ketik `restore-ssh` di laptop lain untuk mengembalikan kunci. |
+| **Apps** | Chrome, VSCode, Zoom otomatis terinstall (kecuali di WSL). |
 
 ---
 
 ## 🔍 Troubleshooting
 
-- **"command not found: nix"**: Jalankan `source ~/.zshrc` atau buka terminal baru.
-- **"clobbered error"**: Pastikan kamu selalu menyertakan flag `-b backup` saat menjalankan `home-manager switch`.
-- **Ganti Nama/Email Git**: Ubah di file [home.nix](file:///Users/mdanilrafiqi/.config/home-manager/home.nix) di bagian `programs.git`.
-
----
-*Happy Coding!* 🚀
-
-## Backup
-Jika terjadi kesalahan, konfigurasi lama tersimpan di `~/backupnix`.
+- **"command not found: nix"**: Jalankan `source ~/.zshrc` atau reinstall Nix.
+- **"clobbered error"**: Selalu pakai flag `-b backup`.
+- **"permission denied"**: Coba `chmod +x` pada script yang mau dijalankan.
