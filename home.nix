@@ -1,0 +1,89 @@
+{ config, pkgs, lib, isWSL, ... }:
+
+let
+  isDarwin = pkgs.stdenv.isDarwin;
+  isLinux = pkgs.stdenv.isLinux;
+  username = "mdanilrafiqi";
+  
+  # Logika: Install GUI apps jika di Mac ATAU (Linux murni dan BUKAN WSL)
+  shouldInstallGUI = isDarwin || (isLinux && !isWSL);
+in
+{
+  home.username = username;
+  
+  # Tetapkan home directory secara otomatis berdasarkan OS
+  home.homeDirectory = if isDarwin 
+    then "/Users/${username}" 
+    else "/home/${username}";
+
+  home.stateVersion = "25.11"; 
+
+  # --- 1. Izin Unfree ---
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "vscode"
+    "google-chrome"
+    "antigravity"
+    "cursor"
+    "zoom"
+    "postman"
+  ];
+
+  # --- 2. Packages ---
+  home.packages = [
+    # A. Universal CLI Tools (Akan diinstall di mana saja)
+    pkgs.htop
+    pkgs.eza
+    pkgs.bat
+    pkgs.ripgrep
+    pkgs.fd
+    pkgs.jq
+    pkgs.lazygit
+    pkgs.tldr
+  ] 
+  ++ (if shouldInstallGUI then [
+    # B. GUI Apps (Mac & Native Linux)
+    pkgs.zoom-us
+    pkgs.postman
+    pkgs.google-chrome
+    pkgs.brave
+    pkgs.vscode
+    pkgs.code-cursor
+    pkgs.antigravity
+  ] else [
+    # C. WSL Specific (CLI only)
+  ])
+  ++ (if isDarwin then [
+    pkgs.iterm2 # Cuma ada di Mac
+  ] else []);
+
+  # --- 3. Konfigurasi ZSH ---
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    oh-my-zsh = {
+      enable = true;
+      # Plugin 'macos' hanya diaktifkan jika di Mac
+      plugins = [ "git" "docker" "npm" ] ++ (if isDarwin then [ "macos" ] else []);
+      theme = "robbyrussell"; 
+    };
+
+    initExtra = ''
+      # Nix initialization
+      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+      fi
+    '';
+
+    shellAliases = {
+      ll = "ls -l";
+      ls = "eza --icons";
+      cat = "bat";
+      hm = "home-manager switch";
+    };
+  };
+
+  programs.home-manager.enable = true;
+}
