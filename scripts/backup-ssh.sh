@@ -2,7 +2,9 @@
 
 echo "🔒 Encrypting SSH keys..."
 # Compress folder .ssh (exclude known_hosts/config.backup) using tar
-tar -czvf /tmp/ssh_raw.tar.gz -C "$HOME" .ssh --exclude=".ssh/known_hosts" --exclude=".ssh/config.backup" --exclude=".ssh/.DS_Store"
+# --no-xattrs: Prevent macOS extended attributes (like com.apple.quarantine) from being included
+# causing "ignoring unknown extended header" on Linux
+tar --no-xattrs -czvf /tmp/ssh_raw.tar.gz -C "$HOME" .ssh --exclude=".ssh/known_hosts" --exclude=".ssh/config.backup" --exclude=".ssh/.DS_Store"
 
 # Buat folder backup jika belum ada
 mkdir -p ~/backupssh

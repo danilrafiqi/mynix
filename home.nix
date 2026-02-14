@@ -30,7 +30,7 @@ in
 
   # --- 2. Packages ---
   home.packages = [
-    # A. Universal CLI Tools (Akan diinstall di mana saja)
+    # --- Utils ---
     pkgs.htop
     pkgs.eza
     pkgs.bat
@@ -39,10 +39,16 @@ in
     pkgs.jq
     pkgs.lazygit
     pkgs.tldr
-    pkgs.zip
-    pkgs.unzip
 
-    # --- Script Backup SSH (Encrypted) ---
+    # --- Dev Tools ---
+    pkgs.bun
+    pkgs.nodejs_24
+    pkgs.rustup 
+
+    # --- Neovim & Dependencies ---
+    pkgs.neovim
+    pkgs.gcc # Needed for treesitter
+    pkgs.gnumake # Needed for treesitter
     (pkgs.writeShellScriptBin "backup-ssh" (builtins.readFile ./scripts/backup-ssh.sh))
 
     # --- Script Restore SSH (Decrypted) ---
@@ -129,8 +135,23 @@ in
       ls = "eza --icons";
       cat = "bat";
       hm = "home-manager switch";
+      vi = "nvim";
+      vim = "nvim";
     };
   };
+
+  # Set EDITOR globally via home.sessionVariables (bukan di dalam programs.zsh)
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+  };
+
+  # Otomatis clone LazyVim starter jika folder nvim kosong
+  home.activation.installLazyVim = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    if [ ! -d "${config.home.homeDirectory}/.config/nvim" ]; then
+      $DRY_RUN_CMD ${pkgs.git}/bin/git clone https://github.com/LazyVim/starter "${config.home.homeDirectory}/.config/nvim"
+    fi
+  '';
 
   programs.home-manager.enable = true;
 }
