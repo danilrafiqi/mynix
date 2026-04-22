@@ -38,13 +38,15 @@ in
     pkgs.fd
     pkgs.jq
     pkgs.lazygit
+    pkgs.glab
     pkgs.tldr
 
     # --- Dev Tools ---
     pkgs.bun
     pkgs.nodejs_24
     pkgs.rustup 
-
+    pkgs.yarn
+    
     # --- Neovim & Dependencies ---
     pkgs.neovim
     pkgs.gcc # Needed for treesitter
