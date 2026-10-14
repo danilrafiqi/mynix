@@ -148,6 +148,8 @@ in
     VISUAL = "nvim";
   };
 
+  home.sessionPath = [ "$HOME/.evonic/bin" ];
+
   # Otomatis clone LazyVim starter jika folder nvim kosong
   home.activation.installLazyVim = lib.hm.dag.entryAfter ["writeBoundary"] ''
     if [ ! -d "${config.home.homeDirectory}/.config/nvim" ]; then
