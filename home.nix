@@ -1,8 +1,21 @@
-{ config, pkgs, lib, isWSL, username, ... }:
+{ pkgs, lib, isWSL, username, ... }:
 
 let
   isDarwin = pkgs.stdenv.isDarwin;
   isLinux = pkgs.stdenv.isLinux;
+  bun = pkgs.bun.overrideAttrs (_: {
+    version = "1.4.3";
+    src = {
+      "aarch64-darwin" = pkgs.fetchurl {
+        url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-darwin-aarch64.zip";
+        hash = "sha256-gK/UwGm0am+o8+xSC+vHUKeEPkqNW5WD0prUNsAKNAM=";
+      };
+      "x86_64-linux" = pkgs.fetchurl {
+        url = "https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-linux-x64-baseline.zip";
+        hash = "sha256-H8LtrIQxApCeOhvh2NmALMYHHPB05n6IIx9P/g+LOXs=";
+      };
+    }.${pkgs.stdenv.hostPlatform.system};
+  });
   # username is now passed via arguments
   
   # Logika: Install GUI apps jika di Mac ATAU (Linux murni dan BUKAN WSL)
@@ -20,12 +33,7 @@ in
 
   # --- 1. Izin Unfree ---
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "vscode"
     "google-chrome"
-    "antigravity"
-    "cursor"
-    "zoom"
-    "postman"
   ];
 
   # --- 2. Packages ---
@@ -42,15 +50,14 @@ in
     pkgs.tldr
 
     # --- Dev Tools ---
-    pkgs.bun
+    bun
     pkgs.nodejs_24
+    pkgs.python315
     pkgs.rustup 
-    pkgs.yarn
-    
-    # --- Neovim & Dependencies ---
-    pkgs.neovim
-    pkgs.gcc # Needed for treesitter
-    pkgs.gnumake # Needed for treesitter
+
+    # --- Build Tools ---
+    pkgs.gcc
+    pkgs.gnumake
     (pkgs.writeShellScriptBin "backup-ssh" (builtins.readFile ./scripts/backup-ssh.sh))
 
     # --- Script Restore SSH (Decrypted) ---
@@ -58,13 +65,8 @@ in
   ] 
   ++ (if shouldInstallGUI then [
     # B. GUI Apps (Mac & Native Linux)
-    pkgs.zoom-us
-    pkgs.postman
     pkgs.google-chrome
     pkgs.brave
-    pkgs.vscode
-    pkgs.code-cursor
-    pkgs.antigravity
   ] else [
     # C. WSL Specific (CLI only)
   ])
@@ -137,25 +139,9 @@ in
       ls = "eza --icons";
       cat = "bat";
       hm = "home-manager switch";
-      vi = "nvim";
-      vim = "nvim";
     };
   };
 
-  # Set EDITOR globally via home.sessionVariables (bukan di dalam programs.zsh)
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-  };
-
-  home.sessionPath = [ "$HOME/.evonic/bin" ];
-
-  # Otomatis clone LazyVim starter jika folder nvim kosong
-  home.activation.installLazyVim = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [ ! -d "${config.home.homeDirectory}/.config/nvim" ]; then
-      $DRY_RUN_CMD ${pkgs.git}/bin/git clone https://github.com/LazyVim/starter "${config.home.homeDirectory}/.config/nvim"
-    fi
-  '';
 
   programs.home-manager.enable = true;
 }

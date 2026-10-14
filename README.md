@@ -100,7 +100,7 @@ Karena `home-manager` sudah terinstall, script `restore-ssh` sudah tersedia di t
 | :--- | :--- |
 | **Backup SSH** | Ketik `backup-ssh` untuk mengenkripsi kunci SSH kapan saja. |
 | **Restore SSH** | Ketik `restore-ssh` di laptop lain untuk mengembalikan kunci. |
-| **Apps** | Chrome, VSCode, Zoom otomatis terinstall (kecuali di WSL). |
+| **Apps** | Chrome otomatis terinstall (kecuali di WSL). |
 
 ---
 
